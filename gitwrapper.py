@@ -73,7 +73,8 @@ class colors:
         "CYAN" : "\033[46m",
         "GREEN" : "\033[42m",
         "YELLOW" : "\033[43m",
-        "MAGENTA" : "\033[45m"
+        "MAGENTA" : "\033[45m",
+        "RED" : "\033[41m"
     }
 
 def container(text, back_color, text_color, start="", end="", formatting=""):
@@ -92,6 +93,7 @@ def main():
                 branch, origin = line.split("...")
                 branch = " " + branch.strip()[2:] + " "
                 origin = container(origin.strip(), "", colors.RED, "", "", formatting=colors.BOLD)
+                origin = origin.replace(" [", " "+colors.ansi_fmt[colors.DIM]).replace("]", colors.ansi_fmt[colors.RESET])
                 branch = container(branch, colors.YELLOW, colors.BLACK)
                 print(branch + " " + origin)
                 print()
@@ -110,6 +112,15 @@ def main():
             elif line[:2] == "A ":
                 print("\t" + container("  Added   ", colors.GREEN, colors.BLACK), end=" ")
                 print(line[2:].strip())
+
+            elif line[1] == "D":
+                print(container(" Deleted ", colors.RED, colors.WHITE, ""), end=" ")
+                print(line[2:].strip())
+            elif line[0] == "D":
+                print("\t", end="")
+                print(container(" Deleted ", colors.RED, colors.WHITE), end=" ")
+                print(line[2:].strip())
+
             else:
                 print(line)
          return
@@ -119,5 +130,4 @@ def main():
 
 
 if __name__ == "__main__":
-
     main()
