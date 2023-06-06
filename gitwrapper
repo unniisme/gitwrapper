@@ -1,0 +1,50 @@
+#!/bin/bash
+## For now, full thing is written in sh
+
+FMT_BOLD="\e[01m"
+FMT_DIM="\e[02m"
+FMT_RESET="\e[00m"
+FMT_UNBOLD="\e[22m"
+FMT_UNDIM="\e[22m"
+FG_BLACK="\e[30m"
+FG_BLUE="\e[34m"
+FG_CYAN="\e[36m"
+FG_GREEN="\e[32m"
+FG_YELLOW="\e[33m"
+FG_GREY="\e[37m"
+FG_MAGENTA="\e[35m"
+FG_RED="\e[31m"
+FG_WHITE="\e[97m"
+FG_ORANGE="\033[38;2;255;165;0m"
+BG_BLACK="\e[40m"
+BG_BLUE="\e[44m"
+BG_CYAN="\e[46m"
+BG_GREEN="\e[42m"
+BG_YELLOW="\e[43m"
+BG_MAGENTA="\e[45m"
+
+FG_RANDOM="\033[38;5;130m"
+BG_RANDOM="\033[48:5:130m"
+
+gw(){
+    if [ "$1" = "status" ] || [ "$1" = "s" ]; then
+        OUTPUT="$(git status -sb)"
+        # OUTPUT=$(git status --branch --short | sed -E "s/^## ([^[:space:]]+)(\.\.\.([[:alnum:]\/_-]+))?/\n${FMT_BOLD}${FG_MAGENTA}Branch:\1${FG_YELLOW}\3${FMT_RESET} /; s/^ ([[:alpha:]][[:alpha:]]).*$/ • ${FMT_DIM}${FG_BLUE}\1:${FMT_UNDIM}${FMT_RESET}/")
+        while read line; do
+            echo ::
+            if [ "${line:0:2}" = "##" ];then
+                printf "${FG_YELLOW}${BG_YELLOW}${FG_BLACK}${line:2:0}${FMT_RESET}"
+                # SWITCHING TO PYTHON ARRRGGGHH
+                echo
+            else
+                echo $line
+            fi
+        done <<< "$OUTPUT"
+    # if [ "$1" = "log" ] || [ "$1" = "l" ]; then
+    #     # pretty print git log with ansi escape codes
+    #     git log --pretty=format:"${FMT_BOLD}${FG_MAGENTA}%h${FG_YELLOW}%d${FMT_RESET} %s ${FG_GREEN}[%an]${FMT_RESET}" $2 | less -RSFX
+    else
+        # else just run git
+        git "$@"
+    fi
+}

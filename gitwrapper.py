@@ -74,11 +74,15 @@ class colors:
         "GREEN" : "\033[42m",
         "YELLOW" : "\033[43m",
         "MAGENTA" : "\033[45m",
-        "RED" : "\033[41m"
+        "RED" : "\033[41m",
+        "ORANGE" : "\033[48;2;255;165;0m"
     }
 
 def container(text, back_color, text_color, start="", end="", formatting=""):
-    return colors.ansi_fg[back_color] + start + colors.ansi_bg[back_color] + colors.ansi_fg[text_color] + colors().ansi_fmt[formatting] + text + colors.ansi_fmt[colors.RESET] + colors.ansi_fg[back_color] + end + colors.ansi_fmt[colors.RESET]
+    return colors.ansi_fg[back_color] + start + formatText(text, back_color, text_color, formatting) + colors.ansi_fg[back_color] + end + colors.ansi_fmt[colors.RESET]
+
+def formatText(text, back_color = "", text_color = "", formatting = ""):
+    return colors.ansi_bg[back_color] + colors.ansi_fg[text_color] + colors.ansi_fmt[formatting] + text + colors.ansi_fmt[colors.RESET]
 
 
 def main():
@@ -90,11 +94,17 @@ def main():
          output_stream = os.popen("git status -sb")
          for line in output_stream.readlines():
             if line[:2] == "##":
-                branch, origin = line.split("...")
-                branch = " " + branch.strip()[2:] + " "
-                origin = container(origin.strip(), "", colors.RED, "", "", formatting=colors.BOLD)
-                origin = origin.replace(" [", " "+colors.ansi_fmt[colors.DIM]).replace("]", colors.ansi_fmt[colors.RESET])
-                branch = container(branch, colors.YELLOW, colors.BLACK)
+                try:
+                    branch, origin = line.split("...")
+                    branch = " " + branch.strip()[2:] + " "
+                    origin = container(origin.strip(), "", colors.RED, "", "", formatting=colors.BOLD)
+                    origin = origin.replace(" [", " "+colors.ansi_fmt[colors.DIM]).replace("]", colors.ansi_fmt[colors.RESET])
+                    branch = container(branch, colors.YELLOW, colors.BLACK)
+                except:
+                    branch = line
+                    branch = " " + branch.strip()[2:] + " "
+                    branch = container(branch, colors.YELLOW, colors.BLACK)
+                    origin = ""
                 print(branch + " " + origin)
                 print()
 
@@ -107,19 +117,30 @@ def main():
                 print(line[2:].strip())
 
             elif line[:2] == "??":
-                print(container("  Added   ", colors.GREEN, colors.BLACK, ""), end=" ")
+                print(container(" Added    ", colors.GREEN, colors.BLACK, ""), end=" ")
                 print(line[2:].strip())
             elif line[:2] == "A ":
-                print("\t" + container("  Added   ", colors.GREEN, colors.BLACK), end=" ")
+                print("\t" + container(" Added    ", colors.GREEN, colors.BLACK), end=" ")
                 print(line[2:].strip())
 
             elif line[1] == "D":
-                print(container(" Deleted ", colors.RED, colors.WHITE, ""), end=" ")
+                print(container(" Deleted  ", colors.RED, colors.WHITE, ""), end=" ")
                 print(line[2:].strip())
             elif line[0] == "D":
                 print("\t", end="")
-                print(container(" Deleted ", colors.RED, colors.WHITE), end=" ")
+                print(container(" Deleted  ", colors.RED, colors.WHITE), end=" ")
                 print(line[2:].strip())
+
+            else:
+                print(line)
+         return
+        
+    elif sys.argv[1] == "l" or sys.argv[1] == "log":
+         output_stream = os.popen("git log --decorate")
+         for line in output_stream.readlines():
+            if line[:6] == "commit":
+                print(container(" commit ", colors.ORANGE, colors.BLACK, start="", end=formatText("", colors.YELLOW, colors.ORANGE)), end="")
+                print(container(" " + line[6:].strip() + " ", colors.YELLOW, colors.BLACK, start=""))
 
             else:
                 print(line)
