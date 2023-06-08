@@ -85,12 +85,12 @@ def formatText(text, back_color = "", text_color = "", formatting = ""):
     return colors.ansi_bg[back_color] + colors.ansi_fg[text_color] + colors.ansi_fmt[formatting] + text + colors.ansi_fmt[colors.RESET]
 
 
-def main():
-    if len(sys.argv) == 1:
+def main(argv):
+    if len(argv) == 1:
         print("Help")
         return
 
-    if sys.argv[1] == "s" or sys.argv[1] == "status":
+    if argv[1] == "s" or argv[1] == "status":
          output_stream = os.popen("git status -sb")
          for line in output_stream.readlines():
             if line[:2] == "##":
@@ -135,7 +135,7 @@ def main():
                 print(line)
          return
         
-    elif sys.argv[1] == "l" or sys.argv[1] == "log":
+    elif argv[1] == "l" or argv[1] == "log":
          output_stream = os.popen("git log --decorate")
          for line in output_stream.readlines():
             if line[:6] == "commit":
@@ -143,12 +143,16 @@ def main():
                 print(container(" " + line[6:].strip() + " ", colors.YELLOW, colors.BLACK, start=""))
 
             else:
-                print(line)
+                print(line.strip())
          return
+
+    elif argv[1] == "a" or argv[1] == "add":
+        os.system("git add " + " ".join(argv[2:]))
+        return main(["gw", "s"])
     
-    os.system("git " + " ".join(sys.argv[1:]))
+    os.system("git " + " ".join(argv[1:]))
     return
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)
