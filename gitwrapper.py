@@ -6,6 +6,7 @@ class Container:
     # Only for autocomplete lol
     BOLD = "BOLD" 
     DIM = "DIM" 
+    ITALIC = "IT"
     RESET = "RESET" 
     UNBOLD = "UNBOLD" 
     UNDIM = "UNDIM"   
@@ -48,6 +49,7 @@ class Container:
     ansi_fmt = {
         "" : "",
         "BOLD" : "\033[01m",
+        "IT" : "\033[03m",
         "DIM" : "\033[02m",
         "RESET" : "\033[00m"
     }
@@ -92,8 +94,18 @@ class Container:
     def __str__(self):
         return self.to_string()
 
-def formatText(text, back_color = "", text_color = "", formatting = ""):
-    return Container.ansi_bg[back_color] + Container.ansi_fg[text_color] + Container.ansi_fmt[formatting] + text + Container.ansi_fmt[Container.RESET]
+    def join(*args) -> str:
+        # Joins to the right only
+        for i in range(len(args)-1):
+            args[i].end = formatText(args[i].end, args[i+1].back_color, args[i].back_color)
+            args[i+1].start = ""
+        return "".join([str(c) for c in args])
+
+    def Empty():
+        return Container("", "", "", "", "")
+
+def formatText(text, back_color = "", text_color = "", formatting = "", text_formatting = ""):
+    return Container.ansi_bg[back_color] + Container.ansi_fg[text_color] + Container.ansi_fmt[formatting] + text_formatting + text + Container.ansi_fmt[Container.RESET]
 
 def container(text, back_color, text_color, start="", end="", formatting=""):
     return Container(text, back_color, text_color, start, end, formatting).to_string()
@@ -152,8 +164,35 @@ def main(argv):
          output_stream = os.popen("git log --decorate")
          for line in output_stream.readlines():
             if line[:6] == "commit":
-                print(container(" commit ", Container.ORANGE, Container.BLACK, start="", end=formatText("", Container.YELLOW, Container.ORANGE)), end="")
-                print(container(" " + line[6:].strip() + " ", Container.YELLOW, Container.BLACK, start=""))
+                tokens = line[6:].split("(")
+                
+                # c1 = Container(" commit ", Container.ORANGE, Container.BLACK, start="", end=formatText("", Container.YELLOW, Container.ORANGE))
+                print(formatText(" ", "", Container.YELLOW, Container.BOLD), end = "")
+                c2 = Container(" " + tokens[0].strip() + " ", Container.YELLOW, Container.BLACK)
+                c3 = Container.Empty()
+                c4 = Container.Empty()
+
+                if len(tokens) != 1:
+                    branch = tokens[1].strip().strip(")")
+                    tokens = branch.split("->")
+                    if len(tokens) == 1:
+                        c3 = Container(" " + tokens[0].strip() + " ", Container.RED, Container.WHITE)
+                    else:
+                        c3 = Container(" " + tokens[0].strip() + " ", Container.CYAN, Container.WHITE)
+                        c4 = Container(" " + tokens[1].strip() + " ", Container.GREEN, Container.WHITE)
+
+                print(Container.join(c2, c3, c4))
+
+            elif line[:6] == "Author":
+                print(formatText(" ", "", Container.MAGENTA), end=" ")
+                # print(Container(line[8:].strip(), Container.MAGENTA, Container.WHITE))
+                print(formatText(line[8:].strip(), formatting=Container.ITALIC))
+
+            elif line[:4] == "Date":
+                print(formatText(" ", "", Container.GREEN), end=" ")
+                # print(Container(line[6:].strip(), Container.GREEN, Container.BLACK))
+                print(formatText(line[6:].strip(), formatting=Container.ITALIC))
+
 
             else:
                 print(line.strip())
