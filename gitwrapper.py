@@ -1,7 +1,7 @@
 import sys
 import os
 
-class colors:
+class Container:
 
     # Only for autocomplete lol
     BOLD = "BOLD" 
@@ -78,12 +78,25 @@ class colors:
         "ORANGE" : "\033[48;2;255;165;0m"
     }
 
-def container(text, back_color, text_color, start="", end="", formatting=""):
-    return colors.ansi_fg[back_color] + start + formatText(text, back_color, text_color, formatting) + colors.ansi_fg[back_color] + end + colors.ansi_fmt[colors.RESET]
+    def __init__(self, text, back_color, text_color, start="", end="", formatting=""):
+        self.text = text
+        self.back_color = back_color
+        self.text_color = text_color
+        self.start = start
+        self.end = end
+        self.formatting = formatting
+
+    def to_string(self):
+        return Container.ansi_fg[self.back_color] + self.start + formatText(self.text, self.back_color, self.text_color, self.formatting) + Container.ansi_fg[self.back_color] + self.end + Container.ansi_fmt[Container.RESET]
+
+    def __str__(self):
+        return self.to_string()
 
 def formatText(text, back_color = "", text_color = "", formatting = ""):
-    return colors.ansi_bg[back_color] + colors.ansi_fg[text_color] + colors.ansi_fmt[formatting] + text + colors.ansi_fmt[colors.RESET]
+    return Container.ansi_bg[back_color] + Container.ansi_fg[text_color] + Container.ansi_fmt[formatting] + text + Container.ansi_fmt[Container.RESET]
 
+def container(text, back_color, text_color, start="", end="", formatting=""):
+    return Container(text, back_color, text_color, start, end, formatting).to_string()
 
 def main(argv):
     if len(argv) == 1:
@@ -97,38 +110,38 @@ def main(argv):
                 try:
                     branch, origin = line.split("...")
                     branch = " " + branch.strip()[2:] + " "
-                    origin = container(origin.strip(), "", colors.RED, "", "", formatting=colors.BOLD)
-                    origin = origin.replace(" [", " "+colors.ansi_fmt[colors.DIM]).replace("]", colors.ansi_fmt[colors.RESET])
-                    branch = container(branch, colors.YELLOW, colors.BLACK)
+                    origin = container(origin.strip(), "", Container.RED, "", "", formatting=Container.BOLD)
+                    origin = origin.replace(" [", " "+Container.ansi_fmt[Container.DIM]).replace("]", Container.ansi_fmt[Container.RESET])
+                    branch = container(branch, Container.YELLOW, Container.BLACK)
                 except:
                     branch = line
                     branch = " " + branch.strip()[2:] + " "
-                    branch = container(branch, colors.YELLOW, colors.BLACK)
+                    branch = container(branch, Container.YELLOW, Container.BLACK)
                     origin = ""
                 print(branch + " " + origin)
                 print()
 
             elif line[1] == "M":
-                print(container(" Modified ", colors.YELLOW, colors.BLACK, ""), end=" ")
+                print(container(" Modified ", Container.YELLOW, Container.BLACK, ""), end=" ")
                 print(line[2:].strip())
             elif line[0] == "M":
                 print("\t", end="")
-                print(container(" Modified ", colors.YELLOW, colors.BLACK), end=" ")
+                print(container(" Modified ", Container.YELLOW, Container.BLACK), end=" ")
                 print(line[2:].strip())
 
             elif line[:2] == "??":
-                print(container(" Added    ", colors.GREEN, colors.BLACK, ""), end=" ")
+                print(container(" Added    ", Container.GREEN, Container.BLACK, ""), end=" ")
                 print(line[2:].strip())
             elif line[:2] == "A ":
-                print("\t" + container(" Added    ", colors.GREEN, colors.BLACK), end=" ")
+                print("\t" + container(" Added    ", Container.GREEN, Container.BLACK), end=" ")
                 print(line[2:].strip())
 
             elif line[1] == "D":
-                print(container(" Deleted  ", colors.RED, colors.WHITE, ""), end=" ")
+                print(container(" Deleted  ", Container.RED, Container.WHITE, ""), end=" ")
                 print(line[2:].strip())
             elif line[0] == "D":
                 print("\t", end="")
-                print(container(" Deleted  ", colors.RED, colors.WHITE), end=" ")
+                print(container(" Deleted  ", Container.RED, Container.WHITE), end=" ")
                 print(line[2:].strip())
 
             else:
@@ -139,8 +152,8 @@ def main(argv):
          output_stream = os.popen("git log --decorate")
          for line in output_stream.readlines():
             if line[:6] == "commit":
-                print(container(" commit ", colors.ORANGE, colors.BLACK, start="", end=formatText("", colors.YELLOW, colors.ORANGE)), end="")
-                print(container(" " + line[6:].strip() + " ", colors.YELLOW, colors.BLACK, start=""))
+                print(container(" commit ", Container.ORANGE, Container.BLACK, start="", end=formatText("", Container.YELLOW, Container.ORANGE)), end="")
+                print(container(" " + line[6:].strip() + " ", Container.YELLOW, Container.BLACK, start=""))
 
             else:
                 print(line.strip())
