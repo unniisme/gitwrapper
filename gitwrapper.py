@@ -112,6 +112,15 @@ def container(text, back_color, text_color, start="", end="", formatting="
     return Container(text, back_color, text_color, start, end, formatting).to_string()
 
 def main(argv):
+    def printCommitMessage(commit_message):
+        if commit_message != "":
+            print()
+            print(formatText("   ", Container.CYAN))
+            print(formatText("".ljust(51), Container.GREY, Container.BLACK))
+            print(commit_message.strip())
+            print(formatText("".ljust(51), Container.GREY, Container.BLACK))
+            print()
+
     if len(argv) == 1:
         print("Help")
         return
@@ -162,8 +171,9 @@ def main(argv):
          return
         
     elif argv[1] == "l" or argv[1] == "log":
-         output_stream = os.popen("git log --decorate")
-         for line in output_stream.readlines():
+        output_stream = os.popen("git log --decorate")
+        commit_message = ""
+        for line in output_stream.readlines():
             if line[:6] == "commit":
                 tokens = line[6:].split("(")
                 
@@ -196,16 +206,14 @@ def main(argv):
 
 
             elif line.strip() == "":
-                continue
+                printCommitMessage(commit_message)
+                commit_message = ""
             
             else:
-                print()
-                print(formatText("   ", Container.CYAN))
-                print(formatText("".ljust(51), Container.GREY, Container.BLACK))
-                print(formatText((" " + line.strip()).ljust(51), Container.GREY, Container.BLACK))
-                print(formatText("".ljust(51), Container.GREY, Container.BLACK))
-                print()
-         return
+                commit_message += (formatText((" " + line.strip()).ljust(51), Container.GREY, Container.BLACK)) + "\n"
+        
+        printCommitMessage(commit_message)
+        return
 
     elif argv[1] == "a" or argv[1] == "add":
         os.system("git add " + " ".join(argv[2:]))
