@@ -74,6 +74,7 @@ class Container:
         "BLUE" : "\033[44m",
         "CYAN" : "\033[46m",
         "GREEN" : "\033[42m",
+        "GREY" : "\033[47m",
         "YELLOW" : "\033[43m",
         "MAGENTA" : "\033[45m",
         "RED" : "\033[41m",
@@ -194,8 +195,16 @@ def main(argv):
                 print(formatText(line[6:].strip(), formatting=Container.ITALIC))
 
 
+            elif line.strip() == "":
+                continue
+            
             else:
-                print(line.strip())
+                print()
+                print(formatText("   ", Container.CYAN))
+                print(formatText("".ljust(51), Container.GREY, Container.BLACK))
+                print(formatText((" " + line.strip()).ljust(51), Container.GREY, Container.BLACK))
+                print(formatText("".ljust(51), Container.GREY, Container.BLACK))
+                print()
          return
 
     elif argv[1] == "a" or argv[1] == "add":
