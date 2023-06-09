@@ -214,6 +214,46 @@ def main(argv):
         
         printCommitMessage(commit_message)
         return
+    
+    elif argv[1] == "ll":
+        output_stream = os.popen("git log --decorate")
+        commit_message = ""
+        for line in output_stream.readlines():
+            if line[:6] == "commit":
+                tokens = line[6:].split("(")
+                
+                c1 = Container("  ", Container.ORANGE, Container.BLACK, start="", end=formatText("", Container.YELLOW, Container.ORANGE))
+                c2 = Container(" " + tokens[0].strip()[:7] + " ", Container.YELLOW, Container.BLACK)
+                c3 = Container.Empty()
+                c4 = Container.Empty()
+
+                if len(tokens) != 1:
+                    branch = tokens[1].strip().strip(")")
+                    tokens = branch.split("->")
+                    if len(tokens) == 1:
+                        c3 = Container(" " + tokens[0].strip() + " ", Container.RED, Container.WHITE)
+                    else:
+                        c3 = Container(" " + tokens[0].strip() + " ", Container.CYAN, Container.WHITE)
+                        c4 = Container(" " + tokens[1].strip() + " ", Container.GREEN, Container.WHITE)
+
+                print(Container.join(c1, c2, c3, c4), end="")
+
+            elif line[:6] == "Author":
+                print(Container(" " + line[8:].split("<")[0].strip(), Container.MAGENTA, Container.WHITE), end="")
+
+            elif line[:4] == "Date":
+                continue
+
+            elif line.strip() == "":
+                if commit_message != "":
+                    print(commit_message.strip())
+                    commit_message = ""
+
+            else:
+                commit_message += formatText(" " + line.strip(), formatting=Container.ITALIC)
+        
+        return
+
 
     elif argv[1] == "a" or argv[1] == "add":
         os.system("git add " + " ".join(argv[2:]))
