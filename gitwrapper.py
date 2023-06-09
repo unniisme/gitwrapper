@@ -1,24 +1,22 @@
 import sys
 import os
 from ansi import *
+from cliAgent import CLIagent
 
-def main(argv):
-    def printCommitMessage(commit_message):
-        if commit_message != "":
-            print()
-            print(formatText("   ", Container.CYAN))
-            print(formatText("".ljust(51), Container.GREY, Container.BLACK))
-            print(commit_message.strip())
-            print(formatText("".ljust(51), Container.GREY, Container.BLACK))
-            print()
+class GitWrapper(CLIagent):
 
-    if len(argv) == 1:
-        print("Help")
-        return
+    def command_s(self):
+        """
+        git status
+        """
+        GitWrapper(["gitwrapper", "status"])
 
-    if argv[1] == "s" or argv[1] == "status":
-         output_stream = os.popen("git status -sb")
-         for line in output_stream.readlines():
+    def command_status(self):
+        """
+        git status
+        """
+        output_stream = os.popen("git status -sb")
+        for line in output_stream.readlines():
             if line[:2] == "##":
                 try:
                     branch, origin = line.split("...")
@@ -59,9 +57,28 @@ def main(argv):
 
             else:
                 print(line)
-         return
+        return
+
+    def command_l(self):
+        """
+        git log
+        """
+        GitWrapper(["gitwrapper", "log"])
         
-    elif argv[1] == "l" or argv[1] == "log":
+    def command_log(self):
+        """
+        git log
+        """
+        
+        def printCommitMessage(commit_message):
+            if commit_message != "":
+                print()
+                print(formatText("   ", Container.CYAN))
+                print(formatText("".ljust(51), Container.GREY, Container.BLACK))
+                print(commit_message.strip())
+                print(formatText("".ljust(51), Container.GREY, Container.BLACK))
+                print()
+
         output_stream = os.popen("git log --decorate")
         commit_message = ""
         for line in output_stream.readlines():
@@ -106,7 +123,15 @@ def main(argv):
         printCommitMessage(commit_message)
         return
     
-    elif argv[1] == "ll":
+    def command_ll(self):
+        """
+        Oneline git log
+        """
+
+        def printCommitMessage(commit_message):
+            if commit_message != "":
+                print(commit_message.strip())
+
         output_stream = os.popen("git log --decorate")
         commit_message = ""
         for line in output_stream.readlines():
@@ -136,23 +161,15 @@ def main(argv):
                 continue
 
             elif line.strip() == "":
-                if commit_message != "":
-                    print(commit_message.strip())
-                    commit_message = ""
+                printCommitMessage(commit_message)
+                commit_message = ""
 
             else:
                 commit_message += formatText(" " + line.strip(), formatting=Container.ITALIC)
-        
+                
+        printCommitMessage(commit_message)
         return
 
 
-    elif argv[1] == "a" or argv[1] == "add":
-        os.system("git add " + " ".join(argv[2:]))
-        return main(["gw", "s"])
-    
-    os.system("git " + " ".join(argv[1:]))
-    return
-
-
 if __name__ == "__main__":
-    main(sys.argv)
+    GitWrapper(sys.argv)
