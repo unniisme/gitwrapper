@@ -8,22 +8,22 @@ class CLIagent():
 
     variables = {'test' : 0}
 
-    def HandleCLI(*argv):
+    def HandleCLI(self, *argv):
         if len(argv) == 1:
-            return CLIagent.HandleCLI(*argv, 'help')
+            return self.HandleCLI(*argv, 'help')
 
         for i,arg in enumerate(argv[1:]):
             # Handle options
             if arg[:2] == "--":
                 try:
                     # Fetch argument count of option
-                    op_arg_count = getattr(CLIagent, "option_" + arg[2:]).__code__.co_argcount
+                    op_arg_count = getattr(self, "option_" + arg[2:]).__code__.co_argcount - 1
                     # Call the function with that many arguments following the option
                     op_args = argv[i+2: i+2+op_arg_count]
-                    getattr(CLIagent, "option_" + arg[2:])(*op_args)
+                    getattr(self, "option_" + arg[2:])(*op_args)
                     argv = list(argv)
                     argv.pop(i+1)                       # remove option
-                    return CLIagent.HandleCLI(*argv)    # Can have multiple options
+                    return self.HandleCLI(*argv)    # Can have multiple options
                 except AttributeError as e:
                     # TODO : Handle argument mismatch
                     print("Unknown option : " + arg + ". Use help to get list of options")
@@ -34,10 +34,10 @@ class CLIagent():
         for i,arg in enumerate(argv[1:]):
             try:
                 # Fetch argument count of option
-                cmd_arg_count = getattr(CLIagent, "command_" + arg).__code__.co_argcount
+                cmd_arg_count = getattr(self, "command_" + arg).__code__.co_argcount - 1
                 # Call the function with that many arguments following the option
                 cmd_args = argv[i+2: i+2+cmd_arg_count]
-                getattr(CLIagent, "command_" + arg)(*cmd_args)
+                getattr(self, "command_" + arg)(*cmd_args)
                 return 0    #Only 1 command
             except AttributeError as e:
                 # TODO : Handle argument mismatch
@@ -46,52 +46,52 @@ class CLIagent():
             except Exception as e:
                 raise e
 
-    def main(argv = None):
+    def main(self, argv = None):
         if argv == None:
             import sys
             argv = sys.argv
 
-        # TODO: save state
-        var_backup = CLIagent.variables.copy()
+        self.HandleCLI(*argv)
 
-        CLIagent.HandleCLI(*argv)
 
-        CLIagent.variables = var_backup
+
         
     def __init__(self, argv = None):
-        return CLIagent.main(argv)
+        # TODO: save state
+        self.variables = CLIagent.variables.copy()
+        self.main(argv)
 
 
-    def command_help():
+    def command_help(self):
         """
         Show help
         """
-        for arg in dir(CLIagent):
+        for arg in dir(self):
             if arg[:8] == "command_":
                 print(arg[8:], end="\t")
-                print(getattr(CLIagent, arg).__doc__.replace("\n", "\t\n"))
+                print(getattr(self, arg).__doc__.replace("\n", "\t\n"))
 
-        for arg in dir(CLIagent):
+        for arg in dir(self):
             if arg[:7] == "option_":
                 print("--" + arg[7:], end="\t")
-                print(getattr(CLIagent, arg).__doc__.replace("\n", "\t\n"))
+                print(getattr(self, arg).__doc__.replace("\n", "\t\n"))
 
-    def command_template(a,b,c):
-        """
-        A template command.
-        Takes 3 inputs and prints them.
-        Also prints the instance variable "test"
-        """
-        print(a,b,c)
-        print('test: ',CLIagent.variables['test'])
+    # def command_template(self, a,b,c):
+    #     """
+    #     A template command.
+    #     Takes 3 inputs and prints them.
+    #     Also prints the instance variable "test"
+    #     """
+    #     print(a,b,c)
+    #     print('test: ',self.variables['test'])
 
-    def option_template(a, b):
-        """
-        A template option.
-        Takes 2 inputs
-        Set the value instance variable "test" to the sum of inputs
-        """
-        CLIagent.variables['test'] = int(a)+int(b)
+    # def option_template(self, a, b):
+    #     """
+    #     A template option.
+    #     Takes 2 inputs
+    #     Set the value instance variable "test" to the sum of inputs
+    #     """
+    #     self.variables['test'] = int(a)+int(b)
 
 
 if __name__ == '__main__':
