@@ -8,9 +8,7 @@ from cliAgent import CLIagent
 class GitWrapper(CLIagent):
 
     def handle_error(self, e):
-        output_stream = os.popen("git " + " ".join(self.argv[1:]))
-        for line in output_stream.readlines():
-            print(line)
+        os.system("git " + " ".join(self.argv[1:]))
 
     def command_s(self):
         """
