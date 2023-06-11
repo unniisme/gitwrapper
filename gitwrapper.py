@@ -7,6 +7,11 @@ from cliAgent import CLIagent
 
 class GitWrapper(CLIagent):
 
+    def handle_error(self, e):
+        output_stream = os.popen("git " + " ".join(self.argv[1:]))
+        for line in output_stream.readlines():
+            print(line)
+
     def command_s(self):
         """
         git status
@@ -76,9 +81,9 @@ class GitWrapper(CLIagent):
             if commit_message != "":
                 print()
                 print(formatText("   ", Container.CYAN))
-                print(formatText("".ljust(51), Container.GREY, Container.BLACK))
+                print(formatText("".ljust(73), Container.GREY, Container.BLACK))
                 print(commit_message.strip())
-                print(formatText("".ljust(51), Container.GREY, Container.BLACK))
+                print(formatText("".ljust(73), Container.GREY, Container.BLACK))
                 print()
 
         output_stream = os.popen("git log --decorate")
@@ -120,7 +125,7 @@ class GitWrapper(CLIagent):
                 commit_message = ""
             
             else:
-                commit_message += (formatText((" " + line.strip()).ljust(51), Container.GREY, Container.BLACK)) + "\n"
+                commit_message += (formatText((" " + line.strip()).ljust(73), Container.GREY, Container.BLACK)) + "\n"
         
         printCommitMessage(commit_message)
         return

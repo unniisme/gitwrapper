@@ -40,8 +40,7 @@ class CLIagent():
                 getattr(self, "command_" + arg)(*cmd_args)
                 return 0    #Only 1 command
             except AttributeError as e:
-                # TODO : Handle argument mismatch
-                print("Unknown command : " + arg + ". Use help to get list of options")
+                self.handle_error(e)
                 return -1
             except Exception as e:
                 raise e
@@ -51,7 +50,12 @@ class CLIagent():
             import sys
             argv = sys.argv
 
+        self.argv = argv
         self.HandleCLI(*argv)
+
+    def handle_error(self, e : Exception):
+        # TODO : Handle argument mismatch
+        print("Unknown command : " + arg + ". Use help to get list of options")
 
 
 
