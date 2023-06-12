@@ -26,38 +26,38 @@ class GitWrapper(CLIagent):
                 try:
                     branch, origin = line.split("...")
                     branch = " " + branch.strip()[2:] + " "
-                    origin = container(origin.strip(), "", Container.RED, "", "", formatting=Container.BOLD)
+                    origin = str(Container(origin.strip(), "", Container.RED, "", "", formatting=Container.BOLD))
                     origin = origin.replace(" [", " "+Container.ansi_fmt[Container.DIM]).replace("]", Container.ansi_fmt[Container.RESET])
-                    branch = container(branch, Container.YELLOW, Container.BLACK)
+                    branch = str(Container(branch, Container.YELLOW, Container.BLACK))
                 except:
                     branch = line
                     branch = " " + branch.strip()[2:] + " "
-                    branch = container(branch, Container.YELLOW, Container.BLACK)
+                    branch = str(Container(branch, Container.YELLOW, Container.BLACK))
                     origin = ""
                 print(branch + " " + origin)
                 print()
 
             elif line[1] == "M":
-                print(container(" Modified ", Container.YELLOW, Container.BLACK, ""), end=" ")
+                print(Container(" Modified ", Container.YELLOW, Container.BLACK, ""), end=" ")
                 print(line[2:].strip())
             elif line[0] == "M":
                 print("\t", end="")
-                print(container(" Modified ", Container.YELLOW, Container.BLACK), end=" ")
+                print(Container(" Modified ", Container.YELLOW, Container.BLACK), end=" ")
                 print(line[2:].strip())
 
             elif line[:2] == "??":
-                print(container(" Added    ", Container.GREEN, Container.BLACK, ""), end=" ")
+                print(Container(" Added    ", Container.GREEN, Container.BLACK, ""), end=" ")
                 print(line[2:].strip())
             elif line[:2] == "A ":
-                print("\t" + container(" Added    ", Container.GREEN, Container.BLACK), end=" ")
+                print("\t" + str(Container(" Added    ", Container.GREEN, Container.BLACK)), end=" ")
                 print(line[2:].strip())
 
             elif line[1] == "D":
-                print(container(" Deleted  ", Container.RED, Container.WHITE, ""), end=" ")
+                print(Container(" Deleted  ", Container.RED, Container.WHITE, ""), end=" ")
                 print(line[2:].strip())
             elif line[0] == "D":
                 print("\t", end="")
-                print(container(" Deleted  ", Container.RED, Container.WHITE), end=" ")
+                print(Container(" Deleted  ", Container.RED, Container.WHITE), end=" ")
                 print(line[2:].strip())
 
             else:
@@ -143,7 +143,7 @@ class GitWrapper(CLIagent):
             if line[:6] == "commit":
                 tokens = line[6:].split("(")
                 
-                c1 = Container("  ", Container.ORANGE, Container.BLACK, start="", end=formatText("", Container.YELLOW, Container.ORANGE))
+                c1 = Container("  ", Container.ORANGE, Container.BLACK, start="")
                 c2 = Container(" " + tokens[0].strip()[:7] + " ", Container.YELLOW, Container.BLACK)
                 c3 = Container.Empty()
                 c4 = Container.Empty()
@@ -160,7 +160,7 @@ class GitWrapper(CLIagent):
                 print(Container.join(c1, c2, c3, c4), end="")
 
             elif line[:6] == "Author":
-                print(Container(" " + line[8:].split("<")[0].strip(), Container.MAGENTA, Container.WHITE), end="")
+                print(Container(" " + line[8:].split("<")[0].strip(), Container.MAGENTA, Container.WHITE, start = dividers["CIRCLE"][0], end = dividers["CIRCLE"][1]), end="")
 
             elif line[:4] == "Date":
                 continue

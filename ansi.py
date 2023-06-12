@@ -1,4 +1,16 @@
 
+dividers = {
+    "TRIANGLE"  : ("", ""),
+    "CIRCLE"    : ("", ""),
+    "LOWER_TRIANGLE" : ("", ""),
+    "UPPER_TRIANGLE" : ("", ""),
+    "FLAME"     : ("", ""),
+    "WAVE"      : ("", ""),
+    "PIXELS"    : ("", ""),
+    "PIXELS_MORE" : ("", ""),
+    "TRAPEZOID" : ("", "")
+}
+
 class Container:
 
     # Only for autocomplete lol
@@ -79,7 +91,7 @@ class Container:
         "ORANGE" : "\033[48;2;255;165;0m"
     }
 
-    def __init__(self, text, back_color, text_color, start="", end="", formatting=""):
+    def __init__(self, text, back_color, text_color, start=dividers["TRIANGLE"][0], end=dividers["TRIANGLE"][1], formatting=""):
         self.text = text
         self.back_color = back_color
         self.text_color = text_color
@@ -105,6 +117,3 @@ class Container:
 
 def formatText(text, back_color = "", text_color = "", formatting = "", text_formatting = ""):
     return Container.ansi_bg[back_color] + Container.ansi_fg[text_color] + Container.ansi_fmt[formatting] + text_formatting + text + Container.ansi_fmt[Container.RESET]
-
-def container(text, back_color, text_color, start="", end="", formatting=""):
-    return Container(text, back_color, text_color, start, end, formatting).to_string()
