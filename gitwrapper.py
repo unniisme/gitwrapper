@@ -38,26 +38,35 @@ class GitWrapper(CLIagent):
                 print()
 
             elif line[1] == "M":
-                print(Container(" Modified ", Container.YELLOW, Container.BLACK, ""), end=" ")
+                print(Container("    ", Container.YELLOW, Container.BLACK, ""), end=" ")
                 print(line[2:].strip())
             elif line[0] == "M":
                 print("\t", end="")
-                print(Container(" Modified ", Container.YELLOW, Container.BLACK), end=" ")
+                print(Container("    ", Container.YELLOW, Container.BLACK), end=" ")
                 print(line[2:].strip())
 
             elif line[:2] == "??":
-                print(Container(" Added    ", Container.GREEN, Container.BLACK, ""), end=" ")
+                print(Container("    ", Container.GREEN, Container.BLACK, ""), end=" ")
                 print(line[2:].strip())
             elif line[:2] == "A ":
-                print("\t" + str(Container(" Added    ", Container.GREEN, Container.BLACK)), end=" ")
+                print("\t" + str(Container("    ", Container.GREEN, Container.BLACK)), end=" ")
                 print(line[2:].strip())
 
             elif line[1] == "D":
-                print(Container(" Deleted  ", Container.RED, Container.WHITE, ""), end=" ")
+                print(Container("    ", Container.RED, Container.WHITE, ""), end=" ")
                 print(line[2:].strip())
             elif line[0] == "D":
                 print("\t", end="")
-                print(Container(" Deleted  ", Container.RED, Container.WHITE), end=" ")
+                print(Container("    ", Container.RED, Container.WHITE), end=" ")
+                print(line[2:].strip())
+
+            # Merge conflict, not currently correct
+            elif line[1] == "U":
+                print(Container("    ", Container.MAGENTA, Container.WHITE, ""), end=" ")
+                print(line[2:].strip())
+            elif line[0] == "U":
+                print("\t", end="")
+                print(Container("    ", Container.MAGENTA, Container.WHITE), end=" ")
                 print(line[2:].strip())
 
             else:
