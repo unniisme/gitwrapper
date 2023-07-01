@@ -184,6 +184,13 @@ class GitWrapper(CLIagent):
         printCommitMessage(commit_message)
         return
 
+    def command_a(*args):
+        """
+        Add
+        """
+        os.system("git add " + " ".join(args[1:]))
+        GitWrapper(["gitwrapper", "s"])
+
 
 if __name__ == "__main__":
     GitWrapper(sys.argv)
