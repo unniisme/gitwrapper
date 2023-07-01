@@ -2,6 +2,7 @@ class CLIagent():
     """
     Handler for CLI commands
     Populate with functions prefixed with 'command_' for it to be added as a command.
+        function arguments are command arguments. *args is all the next arguments
     Functions starting with 'option_' will be treated as an option (ie. --something).
     'help' command is default and will be automatically populated with docstrings.
     """
@@ -33,11 +34,19 @@ class CLIagent():
 
         for i,arg in enumerate(argv[1:]):
             try:
-                # Fetch argument count of option
-                cmd_arg_count = getattr(self, "command_" + arg).__code__.co_argcount - 1
-                # Call the function with that many arguments following the option
+                command_function = getattr(self, "command_" + arg)
+                
+                # See if it takes all the next arguments
+                if command_function.__code__.co_flags & 0x04:
+                    cmd_args = argv[i+2:]
+                    command_function(*cmd_args)
+                    return 0
+
+                # Fetch argument count of command
+                cmd_arg_count = command_function.__code__.co_argcount - 1
+                # Call the function with that many arguments following the command
                 cmd_args = argv[i+2: i+2+cmd_arg_count]
-                getattr(self, "command_" + arg)(*cmd_args)
+                command_function(*cmd_args)
                 return 0    #Only 1 command
             except AttributeError as e:
                 self.handle_error(e)
